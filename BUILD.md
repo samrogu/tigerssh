@@ -38,14 +38,38 @@ La aplicación y sus recursos se generarán en la siguiente ruta:
 
 En macOS, los archivos `.app` no son un solo archivo binario, sino una **carpeta especial** (Bundle) que macOS reconoce como una aplicación. 
 
-### Empaquetar en un Instalador Único (.dmg)
-Para distribuir la app de macOS como un solo archivo instalador (`.dmg`), puedes usar la utilidad nativa de macOS `hdiutil` desde la terminal de tu Mac:
+### Empaquetar en un Instalador Profesional (.dmg)
+Para distribuir la app de macOS con un instalador profesional (que incluya ícono y atajo a la carpeta Aplicaciones), utilizaremos la herramienta `create-dmg`.
+
+**1. Instalar `create-dmg`** (si no lo tienes instalado)
+```bash
+brew install create-dmg
+```
+
+**2. Generar el instalador**
+Ejecuta los siguientes comandos para crear una carpeta temporal, copiar solo tu aplicación y generar el `.dmg` final:
 
 ```bash
-# Crea un archivo .dmg a partir de la carpeta .app
-hdiutil create -volname "TigerSSH" -srcfolder build/macos/Build/Products/Release/TigerSSH.app -ov -format UDZO build/TigerSSH.dmg
+# 1. Crear una carpeta temporal (staging) y copiar la app
+mkdir -p build/dmg_staging
+cp -R build/macos/Build/Products/Release/TigerSSH.app build/dmg_staging/
+
+# 2. Generar el DMG limpio con create-dmg
+create-dmg \
+  --volname "TigerSSH" \
+  --window-pos 200 120 \
+  --window-size 600 400 \
+  --icon-size 100 \
+  --icon "TigerSSH.app" 150 190 \
+  --hide-extension "TigerSSH.app" \
+  --app-drop-link 450 190 \
+  "build/TigerSSH_Final.dmg" \
+  "build/dmg_staging/"
+
+# 3. Borrar la carpeta temporal
+rm -rf build/dmg_staging
 ```
-Esto generará el archivo `build/TigerSSH.dmg` listo para ser compartido.
+Esto generará el archivo `build/TigerSSH_Final.dmg` completamente limpio y listo para ser distribuido.
 
 ---
 
